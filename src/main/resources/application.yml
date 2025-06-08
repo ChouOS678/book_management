@@ -3,7 +3,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/book_management?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
-    password: 200391zcs#
+    password: 521137Server@@
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 # 服务器配置

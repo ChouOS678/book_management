@@ -27,7 +27,6 @@ public class BorrowRecordController {
 
     /**
      * 调用添加借阅记录方法
-     * @param borrowRecordsModel
      */
     @PostMapping("/add")
     public void addBorrowRecord(@RequestBody BorrowRecordsModel borrowRecordsModel) {
@@ -38,7 +37,7 @@ public class BorrowRecordController {
      * 调用更新借阅状态方法
      */
     @PostMapping("/update")
-    public void updateBorrowRecord(BorrowRecordsModel borrowRecordsModel) {
+    public void updateBorrowRecord(@RequestBody BorrowRecordsModel borrowRecordsModel) {
         borrowRecordService.update(borrowRecordsModel.getRecord_id(),
                 (Date) borrowRecordsModel.getReturnDate(), borrowRecordsModel.getStatus());
     }
