@@ -132,4 +132,53 @@ public class UserController {
         }
 
     }
+
+    /**
+     * 统一响应结果类
+     */
+    public static class ResponseResult<T> {
+
+        private Integer code;
+        private String message;
+        private T data;
+
+        public static <T> ResponseResult<T> success(T data) {
+            ResponseResult<T> result = new ResponseResult<>();
+            result.setCode(200);
+            result.setMessage("操作成功");
+            result.setData(data);
+            return result;
+        }
+
+        public static <T> ResponseResult<T> error(String message) {
+            ResponseResult<T> result = new ResponseResult<>();
+            result.setCode(500);
+            result.setMessage(message);
+            return result;
+        }
+
+        public Integer getCode() {
+            return code;
+        }
+
+        public void setCode(Integer code) {
+            this.code = code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public T getData() {
+            return data;
+        }
+
+        public void setData(T data) {
+            this.data = data;
+        }
+    }
 }
