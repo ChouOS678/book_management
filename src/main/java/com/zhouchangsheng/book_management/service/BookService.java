@@ -3,7 +3,6 @@ package com.zhouchangsheng.book_management.service;
 import com.zhouchangsheng.book_management.dao.BookDao;
 import com.zhouchangsheng.book_management.domain.BooksModel;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
 @Service
 public class BookService {
 
-   // @Autowired
     @Resource
     private BookDao bookDao;
 
