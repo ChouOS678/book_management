@@ -33,13 +33,33 @@ public class BorrowRecordService {
      */
     @Transactional
     public void add(BorrowRecordsModel record) {
-        // 检查关键数据是否为空
+        // 1.检查借阅时间是否为空
         if (record.getBorrowDate() == null) {
             // 设置一个默认值（当前时间）
             record.setBorrowDate(new java.util.Date());
         }
+        //  2.检查剩余时间是否为空
+        if (record.getDueDate() == null) {
+            // 设置一个默认的到期日期。（借阅日期 + 默认借阅天数）
+            // 设定默认借阅周期是 30 天
+            java.util.Calendar calendar = java.util.Calendar.getInstance();
+            if (record.getBorrowDate() != null) {
+                calendar.setTime(record.getBorrowDate());
+            } else {
+                // 如果借阅日期也为空（尽管上面已经处理了），这里可以再次处理或抛错
+                calendar.setTime(new java.util.Date()); // 使用当前时间作为基准
+            }
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, 30); // 默认借阅30天
+            record.setDueDate(calendar.getTime());
+        }
 
-        // 只有在数据校验通过后，才调用DAO方法
+        // 3.因为ReturnSDate为非空，设置默认值
+        if (record.getReturnDate() == null) {
+            // 设置默认归还时间与 DueDate 一致
+            record.setReturnDate(record.getDueDate());
+        }
+
+        // 4.只有在所有数据校验通过后，才调用DAO方法
         borrowRecordDao.add(record);
     }
 

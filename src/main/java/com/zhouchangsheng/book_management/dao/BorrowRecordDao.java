@@ -4,7 +4,9 @@ import com.zhouchangsheng.book_management.domain.BorrowRecordsModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+// Dao层只能用sql.Data(JDBC下)
 import java.sql.Date;
+
 import java.sql.ResultSet;
 import java.util.List;
 
@@ -41,13 +43,20 @@ public class BorrowRecordDao {
      * @param record 新借阅记录对象
      */
     public void add(BorrowRecordsModel record) {
-        String sql = "INSERT INTO borrow_records (book_id, user_id, BorrowDate, DueDate, Status) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO borrow_records (book_id, user_id, BorrowDate, DueDate, ReturnDate, Status) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        java.sql.Date sqlReturnDate = null;
+        if (record.getReturnDate() != null) {
+            sqlReturnDate = new java.sql.Date(record.getReturnDate().getTime());
+        }
+
         jdbcTemplate.update(sql,
                 record.getBook_id(),
                 record.getUser_id(),
                 new Date(record.getBorrowDate().getTime()),
                 new Date(record.getDueDate().getTime()),
+                sqlReturnDate, // ReturnDate参数
                 record.getStatus());
     }
 
@@ -58,6 +67,7 @@ public class BorrowRecordDao {
      * @param status 新状态
      */
     public void update(int recordId, Date returnDate, String status) {
+
         String sql = "UPDATE borrow_records SET ReturnDate = ?, Status = ? WHERE record_id = ?";
         jdbcTemplate.update(sql,
                 new Date(returnDate.getTime()),
