@@ -8,21 +8,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 /**
- *借阅记录业务层
+ * 借阅记录业务层
  */
 @Service
 public class BorrowRecordService {
 
-   // @Autowired
+    // @Autowired
     @Resource
     private BorrowRecordDao borrowRecordDao;
 
     /**
      * 查询所有借阅记录
+     *
      * @return 借阅记录列表
      */
     public List<BorrowRecordsModel> findAll() {
@@ -31,6 +32,7 @@ public class BorrowRecordService {
 
     /**
      * 添加借阅记录
+     *
      * @param record 新借阅记录对象
      */
     @Transactional
@@ -40,6 +42,7 @@ public class BorrowRecordService {
 
     /**
      * 更新借阅记录状态（例如归还）
+     *
      * @param recordId 记录ID
      * @param returnDate 归还日期
      * @param status 新状态
@@ -51,6 +54,7 @@ public class BorrowRecordService {
 
     /**
      * 根据用户ID查询借阅记录
+     *
      * @param user_id 用户ID
      * @return 借阅记录列表
      */

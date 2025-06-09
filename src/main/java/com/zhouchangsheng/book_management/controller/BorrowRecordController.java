@@ -3,8 +3,9 @@ package com.zhouchangsheng.book_management.controller;
 import com.zhouchangsheng.book_management.domain.BorrowRecordsModel;
 import com.zhouchangsheng.book_management.service.BorrowRecordService;
 import jakarta.annotation.Resource;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.bind.annotation.*;
-import java.sql.Date;
 import java.util.List;
 
 /**
@@ -18,35 +19,68 @@ public class BorrowRecordController {
     private BorrowRecordService borrowRecordService;
 
     /**
-     * 调用service层查询所有借阅记录方法
+     * 获取所有借阅记录
      */
-    @GetMapping("/find/all")
-    public List<BorrowRecordsModel> findAll() {
-        return borrowRecordService.findAll();
+    @GetMapping
+    public ResponseResult<List<BorrowRecordsModel>> findAll() {
+        return ResponseResult.success(borrowRecordService.findAll());
     }
 
     /**
-     * 调用添加借阅记录方法
+     * 添加借阅记录
      */
-    @PostMapping("/add")
-    public void addBorrowRecord(@RequestBody BorrowRecordsModel borrowRecordsModel) {
+    @PostMapping
+    public ResponseResult<String> addBorrowRecord(@RequestBody BorrowRecordsModel borrowRecordsModel) {
         borrowRecordService.add(borrowRecordsModel);
+        return ResponseResult.success("借阅记录添加成功");
     }
 
     /**
-     * 调用更新借阅状态方法
+     * 更新借阅状态
      */
-    @PostMapping("/update")
-    public void updateBorrowRecord(@RequestBody BorrowRecordsModel borrowRecordsModel) {
-        borrowRecordService.update(borrowRecordsModel.getRecord_id(),
-                (Date) borrowRecordsModel.getReturnDate(), borrowRecordsModel.getStatus());
+    @PutMapping("/{id}")
+    public ResponseResult<String> updateBorrowRecord(
+            @PathVariable("id") int recordId,
+            @RequestBody BorrowRecordsModel borrowRecordsModel) {
+        borrowRecordService.update(recordId,
+                borrowRecordsModel.getReturnDate(),
+                borrowRecordsModel.getStatus());
+        return ResponseResult.success("借阅状态更新成功");
     }
 
     /**
-     * 调用根据用户id查询借阅记录方法
+     * 根据用户ID查询借阅记录
      */
-    @GetMapping("/find/id")
-    public List<BorrowRecordsModel> findByRecordId(@RequestParam int record_id) {
-       return borrowRecordService.findByUserId(record_id);
+    @GetMapping("/user/{userId}")
+    public ResponseResult<List<BorrowRecordsModel>> findByUserId(@PathVariable("userId") int userId) {
+        return ResponseResult.success(borrowRecordService.findByUserId(userId));
+    }
+
+    /**
+     * 统一响应结果类
+     */
+    @Setter
+    @Getter
+    public static class ResponseResult<T> {
+
+        private Integer code;
+        private String message;
+        private T data;
+
+        public static <T> ResponseResult<T> success(T data) {
+            ResponseResult<T> result = new ResponseResult<>();
+            result.setCode(200);
+            result.setMessage("操作成功");
+            result.setData(data);
+            return result;
+        }
+
+        public static <T> ResponseResult<T> error(String message) {
+            ResponseResult<T> result = new ResponseResult<>();
+            result.setCode(500);
+            result.setMessage(message);
+            return result;
+        }
+
     }
 }
