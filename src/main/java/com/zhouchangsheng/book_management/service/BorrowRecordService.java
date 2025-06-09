@@ -3,12 +3,10 @@ package com.zhouchangsheng.book_management.service;
 import com.zhouchangsheng.book_management.dao.BorrowRecordDao;
 import com.zhouchangsheng.book_management.domain.BorrowRecordsModel;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.sql.Date;
+// 时间库
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,7 +15,7 @@ import java.util.List;
 @Service
 public class BorrowRecordService {
 
-   // @Autowired
+
     @Resource
     private BorrowRecordDao borrowRecordDao;
 
@@ -35,6 +33,13 @@ public class BorrowRecordService {
      */
     @Transactional
     public void add(BorrowRecordsModel record) {
+        // 检查关键数据是否为空
+        if (record.getBorrowDate() == null) {
+            // 设置一个默认值（当前时间）
+            record.setBorrowDate(new java.util.Date());
+        }
+
+        // 只有在数据校验通过后，才调用DAO方法
         borrowRecordDao.add(record);
     }
 
@@ -46,7 +51,11 @@ public class BorrowRecordService {
      */
     @Transactional
     public void update(int recordId, Date returnDate, String status) {
-        borrowRecordDao.update(recordId, returnDate, status);
+        // 1.调用Dao层之前，将java.util.date转换为java.sql.date
+        java.sql.Date sqlreturnDate = new java.sql.Date(returnDate.getTime());
+
+        // 2.将转换后的sql.Date对象传入Dao方法
+        borrowRecordDao.update(recordId, sqlreturnDate, status);
     }
 
     /**
