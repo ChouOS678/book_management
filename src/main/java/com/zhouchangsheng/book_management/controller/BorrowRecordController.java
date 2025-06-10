@@ -4,7 +4,8 @@ import com.zhouchangsheng.book_management.domain.BorrowRecordsModel;
 import com.zhouchangsheng.book_management.service.BorrowRecordService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
-import java.sql.Date;
+// 时间库
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,9 +39,9 @@ public class BorrowRecordController {
      * 调用更新借阅状态方法
      */
     @PostMapping("/update")
-    public void updateBorrowRecord(BorrowRecordsModel borrowRecordsModel) {
+    public void updateBorrowRecord(@RequestBody BorrowRecordsModel borrowRecordsModel) {
         borrowRecordService.update(borrowRecordsModel.getRecord_id(),
-                (Date) borrowRecordsModel.getReturnDate(), borrowRecordsModel.getStatus());
+                borrowRecordsModel.getReturnDate(), borrowRecordsModel.getStatus());
     }
 
     /**
@@ -50,4 +51,5 @@ public class BorrowRecordController {
     public List<BorrowRecordsModel> findByRecordId(@RequestParam int record_id) {
        return borrowRecordService.findByUserId(record_id);
     }
+
 }
