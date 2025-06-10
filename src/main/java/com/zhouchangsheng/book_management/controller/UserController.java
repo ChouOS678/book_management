@@ -3,6 +3,8 @@ package com.zhouchangsheng.book_management.controller;
 import com.zhouchangsheng.book_management.domain.UsersModel;
 import com.zhouchangsheng.book_management.service.UserService;
 import jakarta.annotation.Resource;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -94,25 +96,12 @@ public class UserController {
     /**
      * 登录请求对象
      */
+    @Setter
+    @Getter
     public static class LoginRequest {
 
         private String username;
         private String password;
 
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
     }
 }

@@ -1,181 +1,197 @@
 <template>
-  <div class="book-list">
-    <div class="page-header">
-      <h2>图书管理</h2>
-      <el-button type="primary" @click="handleAdd">
-        <el-icon><Plus /></el-icon>
-        添加图书
-      </el-button>
+  <div class="book-list-container">
+    <div class="header">
+      <h1>图书管理</h1>
+      <div class="actions">
+        <el-input
+            v-model="searchQuery"
+            placeholder="搜索图书..."
+            clearable
+            class="search-input"
+            @clear="fetchBooks"
+            @keyup.enter="fetchBooks"
+        >
+          <template #append>
+            <el-button icon="Search" @click="fetchBooks" />
+          </template>
+        </el-input>
+
+        <el-button
+            type="primary"
+            icon="Plus"
+            v-if="authStore.isAdmin"
+            @click="$router.push({ name: 'BookAdd' })"
+        >
+          添加图书
+        </el-button>
+      </div>
     </div>
 
-    <el-card class="search-card">
-      <el-form :inline="true" :model="searchForm">
-        <el-form-item label="图书号/标题">
-          <el-input
-            v-model="searchForm.keyword"
-            placeholder="请输入图书号或标题"
-            clearable
-            @keyup.enter="handleSearch"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="resetSearch">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-
-    <el-card class="table-card">
-      <el-table
+    <el-table
+        :data="books"
         v-loading="loading"
-        :data="bookList"
-        border
-        style="width: 100%"
-      >
-        <el-table-column prop="id" label="图书号" width="100" />
-        <el-table-column prop="title" label="标题" min-width="200" />
-        <el-table-column prop="author" label="作者" width="120" />
-        <el-table-column prop="isbn" label="ISBN" width="150" />
-        <el-table-column prop="available" label="可借阅数量" width="100" />
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.status === '可用' ? 'success' : 'danger'">
-              {{ row.status }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button-group>
-              <el-button
-                type="primary"
-                link
-                @click="handleEdit(row)"
-              >
-                编辑
-              </el-button>
-              <el-button
-                type="danger"
-                link
-                @click="handleDelete(row)"
-              >
-                删除
-              </el-button>
-            </el-button-group>
-          </template>
-        </el-table-column>
-      </el-table>
+        height="calc(100vh - 220px)"
+        stripe
+    >
+      <el-table-column prop="book_id" label="图书ID" width="100" />
+      <el-table-column prop="title" label="书名" min-width="200" />
+      <el-table-column prop="author" label="作者" width="150" />
+      <el-table-column prop="isbn" label="ISBN" width="180" />
+      <el-table-column label="状态" width="120">
+        <template #default="{ row }">
+          <el-tag :type="row.status === 'available' ? 'success' : 'danger'">
+            {{ row.status === 'available' ? '可借阅' : '已借出' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="available_quantity" label="可借数量" width="100" />
 
-      <div class="pagination-container">
-        <el-pagination
+      <el-table-column label="操作" width="180" v-if="authStore.isAdmin">
+        <template #default="{ row }">
+          <el-button
+              size="small"
+              type="primary"
+              icon="Edit"
+              @click="handleEdit(row)"
+          >
+            编辑
+          </el-button>
+          <el-button
+              size="small"
+              type="danger"
+              icon="Delete"
+              @click="handleDelete(row.book_id)"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="借阅" width="120" v-else>
+        <template #default="{ row }">
+          <el-button
+              type="primary"
+              size="small"
+              :disabled="row.available_quantity === 0"
+              @click="handleBorrow(row)"
+          >
+            借阅
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <div class="pagination">
+      <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
-          :total="total"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-card>
+          :total="totalBooks"
+          layout="total, sizes, prev, pager, next, jumper"
+          :page-sizes="[10, 20, 50]"
+          @size-change="fetchBooks"
+          @current-change="fetchBooks"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'   // 新增
+import { useAuthStore } from '@/store/auth'
+import axios from '@/api/axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
 
-const router = useRouter()
+const authStore = useAuthStore()
+const router = useRouter()   // 新增
+
+const books = ref([])
 const loading = ref(false)
+const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = ref(10)
-const total = ref(0)
+const totalBooks = ref(0)
 
-const searchForm = reactive({
-  keyword: ''
-})
-
-// Mock data - replace with actual API call
-const bookList = ref([
-  {
-    id: '123',
-    title: 'Java开发',
-    author: '李兴华',
-    isbn: '978-7-115-58809-8',
-    available: 5,
-    status: '可用'
+const fetchBooks = async () => {
+  try {
+    loading.value = true
+    const response = await axios.get('/api/books/get/all', {
+      params: {
+        page: currentPage.value,
+        size: pageSize.value,
+        search: searchQuery.value
+      }
+    })
+    books.value = response.data.items
+    totalBooks.value = response.data.total
+  } catch (error) {
+    ElMessage.error('获取图书列表失败: ' + error.message)
+  } finally {
+    loading.value = false
   }
-])
-
-const handleSearch = () => {
-  // TODO: Implement search functionality
-  console.log('Search with:', searchForm.keyword)
 }
 
-const resetSearch = () => {
-  searchForm.keyword = ''
-  handleSearch()
+const handleEdit = (book) => {
+  router.push({ name: 'BookEdit', params: { id: book.book_id } })  // 修复路由
 }
 
-const handleAdd = () => {
-  router.push('/books/add')
-}
-
-const handleEdit = (row) => {
-  router.push(`/books/edit/${row.id}`)
-}
-
-const handleDelete = (row) => {
-  ElMessageBox.confirm(
-    '确定要删除这本图书吗？',
-    '警告',
-    {
+const handleDelete = async (bookId) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这本图书吗？', '警告', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
+    })
+
+    await axios.delete(`/api/books/${bookId}`)
+    ElMessage.success('图书删除成功')
+    fetchBooks()
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('删除失败: ' + error.message)
     }
-  ).then(() => {
-    // TODO: Implement delete functionality
-    ElMessage.success('删除成功')
-  }).catch(() => {})
+  }
 }
 
-const handleSizeChange = (val) => {
-  pageSize.value = val
-  // TODO: Reload data
+const handleBorrow = (book) => {
+  router.push({  // 修复路由
+    name: 'RecordAdd',
+    query: { bookId: book.book_id, bookTitle: book.title }
+  })
 }
 
-const handleCurrentChange = (val) => {
-  currentPage.value = val
-  // TODO: Reload data
-}
+onMounted(() => {
+  fetchBooks()
+})
 </script>
 
 <style scoped>
-.book-list {
+.book-list-container {
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.page-header {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.search-card {
-  margin-bottom: 20px;
+.actions {
+  display: flex;
+  gap: 10px;
 }
 
-.table-card {
-  margin-bottom: 20px;
+.search-input {
+  width: 300px;
 }
 
-.pagination-container {
+.pagination {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
 }
-</style> 
+</style>

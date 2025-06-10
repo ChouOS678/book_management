@@ -38,7 +38,8 @@ public class UserService {
     public UsersModel login(String username, String password) {
         UsersModel user = userDao.findByUsername(username);
         if (user != null && user.getPassword().equals(password)) {
-            return user;
+            if (user.getRole().equals("管理员")) { return user; } // 添加管理员业务
+           // else { return user; } // 添加普通用户业务
         }
         return null;
     }

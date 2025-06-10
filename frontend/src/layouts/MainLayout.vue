@@ -1,116 +1,137 @@
 <template>
-  <el-container class="layout-container">
-    <el-aside width="200px">
-      <el-menu
-        :router="true"
-        class="el-menu-vertical"
-        :default-active="$route.path"
-      >
-        <el-menu-item index="/dashboard">
-          <el-icon><DataLine /></el-icon>
-          <span>仪表盘</span>
-        </el-menu-item>
-        <el-menu-item index="/books">
-          <el-icon><Reading /></el-icon>
-          <span>图书管理</span>
-        </el-menu-item>
-        <el-menu-item index="/records">
-          <el-icon><List /></el-icon>
-          <span>借阅记录</span>
-        </el-menu-item>
-        <el-menu-item index="/reports">
-          <el-icon><PieChart /></el-icon>
-          <span>统计报表</span>
-        </el-menu-item>
-        <el-menu-item index="/logs">
-          <el-icon><Document /></el-icon>
-          <span>操作日志</span>
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
-    
-    <el-container>
-      <el-header>
-        <div class="header-content">
-          <h2>图书借阅管理系统</h2>
-          <el-dropdown>
-            <span class="user-dropdown">
-              {{ username }}
-              <el-icon><ArrowDown /></el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+  <el-container class="main-layout">
+    <!-- 顶部导航栏 -->
+    <el-header height="60px">
+      <div class="header-content">
+        <h1 class="system-title">图书借阅管理系统</h1>
+        <div class="user-info">
+          <span>{{ userStore.username }}</span>
+          <el-button @click="handleLogout" type="text">退出登录</el-button>
         </div>
-      </el-header>
-      
+      </div>
+    </el-header>
+
+    <!-- 主体容器 -->
+    <el-container>
+      <!-- 侧边导航 -->
+      <el-aside width="200px">
+        <el-menu
+            :default-active="$route.path"
+            router
+            background-color="#333744"
+            text-color="#fff"
+            active-text-color="#ffd04b"
+        >
+          <el-menu-item index="/dashboard">
+            <i class="el-icon-s-home"></i>
+            <span>仪表盘</span>
+          </el-menu-item>
+
+          <el-submenu index="/books">
+            <template #title>
+              <i class="el-icon-edit"></i>
+              <span>图书管理</span>
+            </template>
+            <el-menu-item index="/books">图书列表</el-menu-item>
+            <el-menu-item v-if="userStore.isAdmin" index="/books/add">新增图书</el-menu-item>
+          </el-submenu>
+
+          <el-menu-item v-if="userStore.isAdmin" index="/users">
+            <i class="el-icon-user"></i>
+            <span>用户管理</span>
+          </el-menu-item>
+        </el-menu>
+      </el-aside>
+
+      <!-- 内容区域 -->
       <el-main>
-        <router-view></router-view>
+        <router-view />
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import {
-  DataLine,
-  Reading,
-  List,
-  PieChart,
-  Document,
-  ArrowDown
-} from '@element-plus/icons-vue'
+import { computed, ref } from 'vue'   // 添加computed导入
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/store/user'
+import { ElMessage } from 'element-plus'
 
+const route = useRoute()
 const router = useRouter()
-const username = ref('Admin') // This should be replaced with actual user data from store
+const userStore = useUserStore()
 
-const handleLogout = () => {
-  localStorage.removeItem('token')
+// 页面加载时检查登录状态
+const checkLogin = async () => {
+  if (!userStore.isLogin) {
+    await userStore.checkAuth()
+    if (!userStore.isLogin) {
+      ElMessage.error('请先登录')
+      router.push('/login')
+    }
+  }
+}
+
+// 退出登录
+const handleLogout = async () => {
+  await userStore.logout()
+  ElMessage.success('退出成功')
   router.push('/login')
 }
+
+// 移除未使用的showAdminMenu计算属性
+
+
+// 响应式适配
+const isMobile = ref(window.innerWidth < 768)
+window.addEventListener('resize', () => {
+  isMobile.value = window.innerWidth < 768
+})
+
+// 初始化检查
+checkLogin()
 </script>
 
 <style scoped>
-.layout-container {
+.main-layout {
   height: 100vh;
-}
-
-.el-aside {
-  background-color: #304156;
-  color: white;
-}
-
-.el-menu {
-  border-right: none;
+  background-color: #f0f2f5;
 }
 
 .el-header {
-  background-color: white;
-  border-bottom: 1px solid #dcdfe6;
-  padding: 0 20px;
-}
-
-.header-content {
-  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.user-dropdown {
-  cursor: pointer;
+.header-content {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.system-title {
+  color: #333;
+  font-size: 20px;
+  margin-right: 20px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.el-aside {
+  background-color: #333744;
 }
 
 .el-main {
-  background-color: #f0f2f5;
   padding: 20px;
+  background-color: #f0f2f5;
 }
-</style> 
+</style>

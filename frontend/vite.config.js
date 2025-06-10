@@ -15,4 +15,13 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    port: 5173,
+    proxy: {
+      '/api' : {
+        target: 'http://127.0.0.1:8082/book-management', // 转发到后端Base URL
+        changeOrigin: true, // 允许跨域
+      }
+    }
+  }
 })
