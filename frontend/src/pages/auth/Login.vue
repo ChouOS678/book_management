@@ -75,7 +75,7 @@ const handleLogin = async () => {
   try {
     await loginFormRef.value.validate()
     loading.value = true
-
+    console.log(loginForm.value);
     await authStore.login(loginForm.value)
     ElMessage.success('登录成功')
 

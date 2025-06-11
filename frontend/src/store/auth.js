@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     // 登录请求
     async login(credentials) {
-      try {
+      try {                                                        // 检查这个程序
         const response = await axios.post('/api/users/login', credentials)
         const { token, user } = response.data
         

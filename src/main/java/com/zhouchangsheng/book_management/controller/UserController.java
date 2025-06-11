@@ -2,10 +2,13 @@ package com.zhouchangsheng.book_management.controller;
 
 import com.zhouchangsheng.book_management.domain.UsersModel;
 import com.zhouchangsheng.book_management.service.UserService;
+import com.zhouchangsheng.book_management.utils.JWTUtils;
+import io.jsonwebtoken.Jwts;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +22,11 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
-   // @Autowired
     @Resource
     private UserService userService;
+
+    @Autowired
+    private JWTUtils jwtUtils; // 注入JWTUtils的实例
 
     /**
      * 获取所有用户
@@ -44,14 +49,22 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        // 打印日志
+        System.out.println("接收到的用户名: '" + request.getUsername() + "'");
+        System.out.println("接收到的密码: '" + request.getPassword() + "'");
+
         UsersModel user = userService.login(request.getUsername(), request.getPassword());
+        System.out.println("UserModel：" + user.getUserName() + "：" + user.getPassword());
+
         if (user != null) {
-            // 一个生成 token 的逻辑 (例如 JWT)
-            // 这里只是一个示例 token
-            String token = "your_generated_jwt_token_for_" + user.getUserName();
+            System.out.println("生成token...");
+            // 生成JWT的逻辑
+            String token = jwtUtils.generateToken(user.getUserName(), user.getRole());
 
             // 创建一个响应对象，包含 token 和 user 信息
+
             LoginResponse loginResponse = new LoginResponse(token, user);
+
             return ResponseEntity.ok(loginResponse); // 返回 200 OK 和 JSON 对象
         }
         // 返回 401 Unauthorized 或 400 Bad Request
@@ -103,6 +116,14 @@ public class UserController {
     public String deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);
         return "用户删除成功";
+    }
+
+    public JWTUtils getJwtUtils() {
+        return jwtUtils;
+    }
+
+    public void setJwtUtils(JWTUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
     }
 
     /**

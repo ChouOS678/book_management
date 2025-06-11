@@ -5,6 +5,7 @@ import com.zhouchangsheng.book_management.domain.UsersModel;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class UserService {
    // @Autowired
     @Resource
     private UserDao userDao;
+    @Autowired
+    private ResourceUrlProvider resourceUrlProvider;
 
     /**
      * 获取所有用户
@@ -37,9 +40,15 @@ public class UserService {
      */
     public UsersModel login(String username, String password) {
         UsersModel user = userDao.findByUsername(username);
+        System.out.println("user: " + user);
+        if(user != null) {
+            System.out.println("数据库存储密码" + user.getUserName() + ": '" + user.getPassword() + "'");
+            System.out.println("输入密码" + username + ": '" + password + "'");
+        }
         if (user != null && user.getPassword().equals(password)) {
-            if (user.getRole().equals("管理员")) { return user; } // 添加管理员业务
-           // else { return user; } // 添加普通用户业务
+//            if (user.getRole().equals("管理员")) { return user; } // 添加管理员业务
+//            else { return user; } // 添加普通用户业务
+            return user;
         }
         return null;
     }
