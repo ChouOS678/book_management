@@ -114,11 +114,11 @@ const searchForm = reactive({
 })
 
 const recordList = ref([])
-
+// 获取所有记录
 const fetchRecords = async () => {
   try {
     loading.value = true
-    const response = await axios.get('/api/records', {
+    const response = await axios.get('/api/records/find/all', {
       params: {
         page: currentPage.value,
         size: pageSize.value,
@@ -149,7 +149,7 @@ const resetSearch = () => {
 const handleAdd = () => {
   router.push('/records/add')
 }
-
+// 归还
 const handleEdit = async (row) => {
   try {
     await ElMessageBox.confirm('确认归还该图书？', '提示', {
@@ -158,7 +158,11 @@ const handleEdit = async (row) => {
       type: 'warning'
     })
     
-    await axios.put(`/api/records/${row.id}/return`)
+    await axios.put(`/api/records/update`,{
+      recordId: row.id,
+      status: '已归还', // 归还成功后状态变为'已归还'
+      returnDate: new Date() // 传递归还时间
+    })
     ElMessage.success('归还成功')
     fetchRecords()
   } catch (error) {
@@ -168,23 +172,24 @@ const handleEdit = async (row) => {
   }
 }
 
-const handleDelete = async (row) => {
-  try {
-    await ElMessageBox.confirm('确认删除该借阅记录？', '警告', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    await axios.delete(`/api/records/${row.id}`)
-    ElMessage.success('删除成功')
-    fetchRecords()
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败: ' + error.message)
-    }
-  }
-}
+// 删除
+// const handleDelete = async (row) => {
+//   try {
+//     await ElMessageBox.confirm('确认删除该借阅记录？', '警告', {
+//       confirmButtonText: '确定',
+//       cancelButtonText: '取消',
+//       type: 'warning'
+//     })
+//
+//     await axios.delete(`/api/records/${row.id}`)
+//     ElMessage.success('删除成功')
+//     fetchRecords()
+//   } catch (error) {
+//     if (error !== 'cancel') {
+//       ElMessage.error('删除失败: ' + error.message)
+//     }
+//   }
+// }
 
 const handleSizeChange = (val) => {
   pageSize.value = val

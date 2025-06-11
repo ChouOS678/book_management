@@ -3,8 +3,11 @@ package com.zhouchangsheng.book_management.controller;
 import com.zhouchangsheng.book_management.domain.UsersModel;
 import com.zhouchangsheng.book_management.service.UserService;
 import jakarta.annotation.Resource;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,19 +43,26 @@ public class UserController {
      * 用户登录
      */
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         UsersModel user = userService.login(request.getUsername(), request.getPassword());
         if (user != null) {
-            return "登录成功";
+            // 一个生成 token 的逻辑 (例如 JWT)
+            // 这里只是一个示例 token
+            String token = "your_generated_jwt_token_for_" + user.getUserName();
+
+            // 创建一个响应对象，包含 token 和 user 信息
+            LoginResponse loginResponse = new LoginResponse(token, user);
+            return ResponseEntity.ok(loginResponse); // 返回 200 OK 和 JSON 对象
         }
-        return "用户名或密码错误";
+        // 返回 401 Unauthorized 或 400 Bad Request
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("用户名或密码错误");
     }
 
     /**
      * 用户注册
      */
     @PostMapping("/register")
-    public String register(@RequestBody UsersModel user) {
+    public ResponseEntity<?> register(@RequestBody UsersModel user) {
         // 设置默认角色为普通用户
         if (user.getRole() == null) {
             user.setRole("普通用户");
@@ -60,9 +70,11 @@ public class UserController {
 
         boolean success = userService.register(user);
         if (success) {
-            return "注册成功";
+            // 注册成功后，直接登录并返回 token 和 user 信息
+            String token = "your_generated_jwt_token_for_" + user.getUserName();
+            return ResponseEntity.ok(new LoginResponse(token, user)); // 返回 200 OK 和 JSON 对象
         }
-        return "注册失败，用户名已存在";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("注册失败，用户名已存在");
     }
 
     /**
@@ -99,9 +111,18 @@ public class UserController {
     @Setter
     @Getter
     public static class LoginRequest {
-
         private String username;
         private String password;
+    }
 
+    /**
+     * 登录响应对象
+     */
+    @Setter
+    @Getter
+    @AllArgsConstructor // Lombok annotation to generate all-args constructor
+    public static class LoginResponse {
+        private String token;
+        private UsersModel user;
     }
 }
