@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书管理系统 - 管理员面板</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-book-reader"></i>
+                <span>图书管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active" data-section="book-management">
+                        <i class="fas fa-book"></i>
+                        <span>图书管理</span>
+                    </li>
+                    <li data-section="user-management">
+                        <i class="fas fa-users"></i>
+                        <span>用户管理</span>
+                    </li>
+                    <li data-section="data-reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>数据报表</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <span id="admin-name">管理员</span>
+                <button id="logout-btn">退出登录</button>
+            </div>
+        </div>
+
+        <!-- 主要内容区 -->
+        <div class="main-content">
+            <!-- 图书管理部分 -->
+            <section id="book-management" class="content-section active">
+                <h2>图书管理</h2>
+                <div class="action-bar">
+                    <button id="add-book-btn" class="primary-btn">
+                        <i class="fas fa-plus"></i> 添加新书
+                    </button>
+                    <div class="search-box">
+                        <label for="book-search"></label><input type="text" id="book-search" placeholder="搜索图书...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="books-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>书名</th>
+                                <th>作者</th>
+                                <th>ISBN</th>
+                                <th>库存数量</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 图书数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 用户管理部分 -->
+            <section id="user-management" class="content-section">
+                <h2>用户管理</h2>
+                <div class="action-bar">
+                    <div class="search-box">
+                        <label for="user-search"></label><input type="text" id="user-search" placeholder="搜索用户...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>邮箱</th>
+                                <th>角色</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 用户数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 数据报表部分 -->
+            <section id="data-reports" class="content-section">
+                <h2>数据报表</h2>
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>借阅统计</h3>
+                        <div class="chart-container">
+                            <!-- 图表将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <h3>用户活跃度</h3>
+                        <div class="chart-container">
+                            <!-- 图表将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <h3>图书分类统计</h3>
+                        <div class="chart-container">
+                            <!-- 图表将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- 添加新书模态框 -->
+    <div id="add-book-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加新书</h3>
+                <button class="close-btn">&times;&times;</button>
+            </div>
+            <form id="add-book-form">
+                <div class="form-group">
+                    <label for="book-title">书名</label>
+                    <input type="text" id="book-title" required>
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="book-author">作者</label>
+                    <input type="text" id="book-author" required>
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="book-isbn">ISBN</label>
+                    <input type="text" id="book-isbn" required>
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="book-quantity">库存数量</label>
+                    <input type="number" id="book-quantity" min="0" required>
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">添加</button>
+                    <button type="button" class="secondary-btn" onclick="closeModal('add-book-modal')">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin-dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js" integrity="sha384-RuyvpeZCxMJCqVUGFI0Do1mQrods/hhxYlcVfGPOfQtPJh0JCw12tUAZ/Mv10S7D" crossorigin="anonymous"></script>
+</body>
+</html> 

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书管理系统 - 注册</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>用户注册</h2>
+            <div class="role-notice">
+                <i class="fas fa-info-circle"></i>
+                <p>注意：新注册用户默认为普通用户。如需管理员账号，请联系系统管理员开通。</p>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="reg-username">用户名</label>
+                    <input type="text" id="reg-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">密码</label>
+                    <input type="password" id="reg-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">邮箱</label>
+                    <input type="email" id="reg-email" name="email" required>
+                </div>
+                <input type="hidden" name="role" value="USER">
+                <button type="submit" class="btn-register">注册</button>
+                <div class="login-link">
+                    <a href="login.html">已有账号？返回登录</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="js/register.js"></script>
+</body>
+</html> 

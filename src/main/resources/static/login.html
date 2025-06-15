@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书管理系统 - 登录</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>用户登录</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            required
+                            autocomplete="username"> <!-- ✅ 新增 -->
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"> <!-- ✅ 新增 -->
+                </div>
+                <div class="form-group">
+                    <span id="role-label">选择角色</span> <!-- ✅ 主标题 -->
+                    <div class="role-selection" role="group" aria-labelledby="role-label"> <!-- ✅ ARIA语义化 -->
+                        <label class="role-option">
+                            <input type="radio" name="role" value="USER" required autocomplete="off">
+                            <span>普通用户</span>
+                        </label>
+                        <label class="role-option admin-option">
+                            <input type="radio" name="role" value="ADMIN" autocomplete="off">
+                            <span>管理员 <i class="fas fa-user-shield"></i></span>
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-login">登录</button>
+                <div class="register-link">
+                    <a href="register.html">没有账号？点击注册</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="js/login.js"></script>
+</body>
+</html> 
